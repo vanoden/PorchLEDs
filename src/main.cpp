@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <FastLED.h>
 
 #define LED_PIN_1     5
@@ -27,8 +28,6 @@ CRGB leds[NUM_LEDS];
 // Some notes on the more abstract 'theory and practice' of
 // FastLED compact palettes are at the bottom of this file.
 
-
-
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 
@@ -36,6 +35,47 @@ extern CRGBPalette16 myRedWhiteBluePalette;
 extern const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
 
 int step = 0;
+int idx = 0;
+int primary_bright = 255;
+int transition_speed = -4;
+CRGB primary_color = CRGB::Orange;
+CRGB secondary_color = CRGB::Brown;
+
+void ThanksGivingPalette() {
+    CRGB white = CRGB::White;
+    CRGB yellow = CRGB::Yellow;
+    CRGB orange = CRGB::Orange;
+    CRGB brown = CRGB::Brown;
+    CRGB black = CRGB::Black;
+
+    currentPalette = CRGBPalette16(
+        white, yellow, orange, brown,
+        black, brown, orange, yellow,
+        white, yellow, orange, brown,
+        black, brown, orange, yellow
+    );
+}
+
+void ChristmasPalette() {
+    currentPalette = CRGBPalette16(
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0),
+        CRGB(200,0,0),
+        CRGB(0,200,0)
+    );
+}
 
 void setup() {
     delay( 3000 ); // power-up safety delay
@@ -45,48 +85,20 @@ void setup() {
 
     int idx = 0;
     for (int i = 0; i < NUM_LEDS; i ++) {
-      if (idx == 0) {
-        leds[i].setRGB(200,0,0);
-        idx = 1;
-      }
-      else {
-        leds[i].setRGB(0,200,0);
-        idx = 0;
-      }
+        if (idx == 0) {
+            leds[i].setRGB(200,0,0);
+            idx = 1;
+        }
+        else {
+            leds[i].setRGB(0,200,0);
+            idx = 0;
+        }
     }
     //currentPalette = ChristmasPalette();
     currentBlending = NOBLEND;
 }
 
-int idx = 0;
-int red_bright = 255;
-int red_going = -4;
-void loop()
-{
-    red_bright += red_going;
-    if (red_bright >= 255) {
-      red_bright = 255;
-      red_going = -1 * red_going;
-    }
-    if (red_bright <= 0) {
-      red_bright = 0;
-      red_going = -1 * red_going;
-    }
-    int green_bright = 255 - red_bright;
-  
-    for (int i = 0; i < NUM_LEDS; i += 2) {
-      leds[i].setRGB(red_bright,0,0);
-      leds[i+1].setRGB(0,green_bright,0);
-    }
-
-    leds[random(0,255)].setRGB(255,255,255);
-    
-    FastLED.show();
-    FastLED.delay(1000 / UPDATES_PER_SECOND);
-}
-
-void FillLEDsFromPaletteColors( uint8_t colorIndex)
-{
+void FillLEDsFromPaletteColors( uint8_t colorIndex) {
     uint8_t brightness = 255;
 
     int idx = 0;
@@ -162,42 +174,6 @@ void SetupBlackAndWhiteStripedPalette()
     
 }
 
-void ThanksGivingPalette() {
-  CRGB white = CRGB::White;
-  CRGB yellow = CRGB::Yellow;
-  CRGB orange = CRGB::Orange;
-  CRGB brown = CRGB::Brown;
-  CRGB black = CRGB::Black;
-
-  currentPalette = CRGBPalette16(
-        white, yellow, orange, brown,
-        black, brown, orange, yellow,
-        white, yellow, orange, brown,
-        black, brown, orange, yellow
-  );
-}
-
-void ChristmasPalette() {
-  currentPalette = CRGBPalette16(
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0),
-        CRGB(200,0,0),
-        CRGB(0,200,0)
-    );
-}
-
 // This function sets up a palette of purple and green stripes.
 void SetupPurpleAndGreenPalette()
 {
@@ -206,10 +182,10 @@ void SetupPurpleAndGreenPalette()
     CRGB black  = CRGB::Black;
     
     currentPalette = CRGBPalette16(
-                                   green,  green,  black,  black,
-                                   purple, purple, black,  black,
-                                   green,  green,  black,  black,
-                                   purple, purple, black,  black );
+        green,  green,  black,  black,
+        purple, purple, black,  black,
+        green,  green,  black,  black,
+        purple, purple, black,  black );
 }
 
 
@@ -262,3 +238,31 @@ const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
 // palette to Green (0,255,0) and Blue (0,0,255), and then retrieved 
 // the first sixteen entries from the virtual palette (of 256), you'd get
 // Green, followed by a smooth gradient from green-to-blue, and then Blue.
+
+
+void two_color_fade() {
+    primary_bright += transition_speed;
+    if (primary_bright >= 255) {
+      primary_bright = 255;
+      transition_speed = -1 * transition_speed;
+    }
+    if (primary_bright <= 0) {
+      primary_bright = 0;
+      transition_speed = -1 * transition_speed;
+    }
+    int secondary_going = 255 - primary_bright;
+  
+    for (int i = 0; i < NUM_LEDS; i += 2) {
+      leds[i].setRGB(primary_bright,0,0);
+      leds[i+1].setRGB(0,secondary_going,0);
+    }
+
+    leds[random(0,255)].setRGB(255,255,255);
+}
+
+void loop()
+{
+    two_color_fade();
+    FastLED.show();
+    FastLED.delay(1000 / UPDATES_PER_SECOND);
+}
