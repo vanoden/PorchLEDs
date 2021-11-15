@@ -1,15 +1,8 @@
-#include <Arduino.h>
-#include <FastLED.h>
+#include "FastLED.h"
 
-#define LED_PIN_1     5
-#define LED_PIN_2     7
-#define NUM_LEDS    150
-#define BRIGHTNESS  64
 #define LED_TYPE    WS2811
 #define COLOR_ORDER GRB
-CRGB leds[NUM_LEDS];
-
-#define UPDATES_PER_SECOND 100
+CRGB leds[256];
 
 // This example shows several ways to set up and use 'palettes' of colors
 // with FastLED.
@@ -75,27 +68,6 @@ void ChristmasPalette() {
         CRGB(200,0,0),
         CRGB(0,200,0)
     );
-}
-
-void setup() {
-    delay( 3000 ); // power-up safety delay
-    FastLED.addLeds<LED_TYPE, LED_PIN_1, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
-    FastLED.addLeds<LED_TYPE, LED_PIN_2, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
-    FastLED.setBrightness(  BRIGHTNESS );
-
-    int idx = 0;
-    for (int i = 0; i < NUM_LEDS; i ++) {
-        if (idx == 0) {
-            leds[i].setRGB(200,0,0);
-            idx = 1;
-        }
-        else {
-            leds[i].setRGB(0,200,0);
-            idx = 0;
-        }
-    }
-    //currentPalette = ChristmasPalette();
-    currentBlending = NOBLEND;
 }
 
 void FillLEDsFromPaletteColors( uint8_t colorIndex) {
@@ -257,11 +229,40 @@ void two_color_fade() {
       leds[i+1].setRGB(0,secondary_going,0);
     }
 
-    leds[random(0,255)].setRGB(255,255,255);
+    leds[random(0,255)].setRGB(200,200,200);
 }
 
+
+void setup() {
+    Serial.begin(9600);
+    Serial.println("Here we go");
+
+    delay( 3000 ); // power-up safety delay
+    FastLED.addLeds<LED_TYPE, LED_PIN_1, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+    FastLED.addLeds<LED_TYPE, LED_PIN_2, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+    FastLED.setBrightness(  BRIGHTNESS );
+
+    int idx = 0;
+    for (int i = 0; i < NUM_LEDS; i ++) {
+        if (idx == 0) {
+            leds[i].setRGB(200,0,0);
+            idx = 1;
+        }
+        else {
+            leds[i].setRGB(0,200,0);
+            idx = 0;
+        }
+    }
+    //currentPalette = ChristmasPalette();
+    currentBlending = NOBLEND;
+}
+
+int cntr = 0;
 void loop()
 {
+    //cntr++;
+    //if (cntr > 9) cntr = 0;
+    //Serial.print(cntr);
     two_color_fade();
     FastLED.show();
     FastLED.delay(1000 / UPDATES_PER_SECOND);
